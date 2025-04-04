@@ -7,7 +7,7 @@ const JoinUs = () => {
     <div
       className="d-flex flex-column align-items-center justify-content-center text-center vh-100 position-relative"
       style={{
-        backgroundImage: "url('/volunteers.jpg')",
+        backgroundImage: "url('volunteers.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
