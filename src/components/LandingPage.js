@@ -9,7 +9,7 @@ const LandingPage = () => {
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
         style={{
-          backgroundImage: "url('/volunteers.jpg')",
+          backgroundImage: "url('volunteers.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "brightness(0.7)",
