@@ -1,3 +1,25 @@
+<h1><strong>Teach for Good</strong></h1> 
+<p>We are a platform connecting volunteers and NGOs based on their availability, location, and preferred teaching subjects.<br>
+We aim to bridge the gap between willing educators and organizations working to uplift underprivileged students.</p>
+<h2>Deployed Link</h2>
+https://sohi07.github.io/TeachForGood/
+<br>
+
+## Contributors
+
+<a href="https://github.com/Sohi07"><img src="https://avatars.githubusercontent.com/Sohi07" width="50px" alt="Sohini Das"/></a>
+<a href="https://github.com/TAnisha016"><img src="https://avatars.githubusercontent.com/TAnisha016" width="50px" alt="Tanisha"/></a>
+
+<h2>Note</h2>
+<p>This app is currently frontend-only! The login and signup forms are present to give an idea of the functionality of the website.<br>
+Backend integration and full functionality will be added in future updates.
+</p>
+
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
