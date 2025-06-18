@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
@@ -9,13 +9,13 @@ const LandingPage = () => {
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
         style={{
-          backgroundImage: "url('volunteers.jpg')",
+          backgroundImage: `url(${process.env.PUBLIC_URL}/volunteers.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "brightness(0.7)",
+          zIndex:-1
         }}
       ></div>
-color=blue 
       {/* Hero Section */}
       <div className="container position-relative z-2 d-flex flex-column align-items-center justify-content-center vh-100">
         <h5 className="text-uppercase">

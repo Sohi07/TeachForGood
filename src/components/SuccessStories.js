@@ -1,8 +1,12 @@
 import useScrollToTop from "./useScrollToTop";
 import React from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const SuccessStories = () => {
   useScrollToTop();
+
   const stories = [
     { id: 1, title: "📚 From Street to School", description: "Ramesh, once selling newspapers, is now enrolled in school and dreams of becoming a doctor." },
     { id: 2, title: "👩‍🎓 Empowering Girls through Education", description: "Aarti, a rural girl on the verge of dropping out, is now in college thanks to educational support." },
@@ -21,22 +25,42 @@ const SuccessStories = () => {
     { id: 15, title: "🏫 Night Schools for Working Kids", description: "Evening classes enabled child laborers to continue their education alongside their work." }
   ];
 
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    arrows: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: { slidesToShow: 2 }
+      },
+      {
+        breakpoint: 768,
+        settings: { slidesToShow: 1 }
+      }
+    ]
+  };
+
   return (
     <div className="container mt-4" style={{ paddingTop: '60px' }}>
       <h1 className="text-center mb-4 text-primary">🌟 Success Stories 🌟</h1>
-      <div className="row">
+      <Slider {...settings}>
         {stories.map((story) => (
-          <div key={story.id} className="col-md-4 mb-4">
-            <div className="card shadow p-3 rounded bg-light border-0">
+          <div key={story.id} className="p-3">
+            <div className="card shadow p-3 rounded bg-light border-0 h-100">
               <h5 className="text-dark fw-bold">{story.title}</h5>
               <p className="text-secondary">{story.description}</p>
             </div>
           </div>
         ))}
-      </div>
+      </Slider>
     </div>
   );
 };
 
 export default SuccessStories;
+
 
