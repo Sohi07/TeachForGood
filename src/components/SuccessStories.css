@@ -1,0 +1,11 @@
+.slick-prev:before,
+.slick-next:before {
+  color: #007bff !important;
+  font-size: 30px;
+  opacity: 1;
+}
+
+.slick-prev:hover:before,
+.slick-next:hover:before {
+  color: #0056b3 !important;
+}
