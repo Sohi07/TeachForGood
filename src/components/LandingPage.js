@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+
+import { Link, useLocation } from "react-router-dom";
+import { useRef, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 import SuccessStories from "./SuccessStories";
@@ -6,6 +8,15 @@ import "../App.css"; // Custom styles
 
 const LandingPage = () => {
   useScrollToTop();
+  const successRef = useRef(null);
+  const location = useLocation();
+  const scrollTo = location.state?.scrollTo;
+
+  useEffect(() => {
+    if (scrollTo === "success" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [scrollTo]);
 
   return (
     <div>
@@ -71,70 +82,69 @@ const LandingPage = () => {
         </div>
       </div>
 
-        {/* About Section */}
-   <div
-  className="container py-5 text-dark"
-  style={{
-    background: "rgba(224, 247, 250, 0.82)", 
-    zIndex: 2,
-    position: "relative",
-    
-  }}
->
-  <div className="row justify-content-center">
-    <div className="col-md-10 text-center">
-      <h2 className="fw-bold mb-4">About Teach for Good</h2>
-      <p className="lead">
-        At <strong>Teach for Good</strong>, we believe that quality education is a right, not a privilege. Our mission is to bridge the gap between passionate educators and the communities that need them most.
-      </p>
-      <p>
-        We empower volunteers by connecting them with NGOs where they can make a lasting impact—by teaching, mentoring, and inspiring students beyond the classroom.
-      </p>
-    </div>
-  </div>
-</div>
-
-      {/* Features Section */}
-<div className="container-fluid py-5 text-dark bg-white">
-  <div className="container">
-    <div className="text-center mb-5">
-      <h2 className="fw-bold">How It Works</h2>
-      <p className="text-muted">A simple process to make a real difference</p>
-    </div>
-    <div className="row g-4">
-      {[
-        {
-          title: "Sign Up & Customize",
-          text: "Volunteers register and specify their location, availability, and teaching preferences.",
-          icon: "📝",
-        },
-        {
-          title: "Get Matched with NGOs",
-          text: "Our platform intelligently matches volunteers with NGOs based on mutual preferences.",
-          icon: "🔗",
-        },
-        {
-          title: "Start Teaching & Inspiring",
-          text: "Begin your journey of impact by teaching and empowering students in need.",
-          icon: "📚",
-        },
-      ].map((feature, index) => (
-        <div className="col-md-4" key={index}>
-          <div className="card feature-card h-100 border-0">
-            <div className="card-body text-center">
-              <div className="display-4 mb-3">{feature.icon}</div>
-              <h5 className="card-title fw-bold">{feature.title}</h5>
-              <p className="card-text">{feature.text}</p>
-            </div>
+      {/* About Section */}
+      <div
+        className="container py-5 text-dark"
+        style={{
+          background: "rgba(224, 247, 250, 0.82)",
+          zIndex: 2,
+          position: "relative",
+        }}
+      >
+        <div className="row justify-content-center">
+          <div className="col-md-10 text-center">
+            <h2 className="fw-bold mb-4">About Teach for Good</h2>
+            <p className="lead">
+              At <strong>Teach for Good</strong>, we believe that quality education is a right, not a privilege. Our mission is to bridge the gap between passionate educators and the communities that need them most.
+            </p>
+            <p>
+              We empower volunteers by connecting them with NGOs where they can make a lasting impact—by teaching, mentoring, and inspiring students beyond the classroom.
+            </p>
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</div>
+      </div>
+
+      {/* Features Section */}
+      <div className="container-fluid py-5 text-dark bg-white">
+        <div className="container">
+          <div className="text-center mb-5">
+            <h2 className="fw-bold">How It Works</h2>
+            <p className="text-muted">A simple process to make a real difference</p>
+          </div>
+          <div className="row g-4">
+            {[
+              {
+                title: "Sign Up & Customize",
+                text: "Volunteers register and specify their location, availability, and teaching preferences.",
+                icon: "📝",
+              },
+              {
+                title: "Get Matched with NGOs",
+                text: "Our platform intelligently matches volunteers with NGOs based on mutual preferences.",
+                icon: "🔗",
+              },
+              {
+                title: "Start Teaching & Inspiring",
+                text: "Begin your journey of impact by teaching and empowering students in need.",
+                icon: "📚",
+              },
+            ].map((feature, index) => (
+              <div className="col-md-4" key={index}>
+                <div className="card feature-card h-100 border-0">
+                  <div className="card-body text-center">
+                    <div className="display-4 mb-3">{feature.icon}</div>
+                    <h5 className="card-title fw-bold">{feature.title}</h5>
+                    <p className="card-text">{feature.text}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Success Stories Section */}
-      <div id ="success-stories"className="bg-light py-5 text-dark">
+      <div ref={successRef} className="bg-light py-5 text-dark">
         <SuccessStories />
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
+
 const Login = () => {
   useScrollToTop();
   const [name, setName] = useState("");
@@ -17,94 +18,97 @@ const Login = () => {
       return;
     }
 
-    // Save user details and type in localStorage
     localStorage.setItem("user", name);
     localStorage.setItem("userType", userType);
 
-    // Directly navigate to the dashboard
     if (userType === "Volunteer") {
       navigate("/volunteer-dashboard");
     } else if (userType === "NGO") {
       navigate("/ngo-dashboard");
     } else {
-      navigate("/"); // Navigate to home if userType is not set
+      navigate("/");
     }
   };
 
   return (
     <div
-      className="d-flex flex-column align-items-center justify-content-center vh-100 w-100 position-relative"
+      className="d-flex align-items-center justify-content-center vh-100 w-100"
       style={{
-        backgroundImage: "url('/background.jpg')",
+        backgroundImage: "url('/LoginImg.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed",
+        backgroundRepeat: "no-repeat",
+        fontFamily: "'Segoe UI', sans-serif",
+        position: "relative",
       }}
     >
-      {/* Background Overlay */}
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
         style={{
-          backdropFilter: "blur(15px)",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backgroundColor: "rgba(14, 38, 42, 0.27)",
         }}
       ></div>
 
-      {/* Login form */}
       <div
-        className="position-relative p-4 rounded text-dark"
+        className="position-relative p-5 w-100"
         style={{
           maxWidth: "400px",
-          width: "90%",
-          background: "rgba(255, 255, 255, 0.4)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          borderRadius: "16px",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
         }}
       >
-        <h2 className="fw-bold mb-3 text-white">Login</h2>
-        <div className="d-flex gap-3 mb-3">
+        <h2 className="text-center mb-4" style={{ color: "#2c3e50" }}>
+          Welcome Back!
+        </h2>
+
+        <div className="d-flex gap-3 mb-4">
           <button
-            className={`btn ${
-              userType === "Volunteer" ? "btn-primary" : "btn-outline-light"
-            } flex-grow-1`}
+            className={`btn flex-grow-1 ${
+              userType === "Volunteer" ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => setUserType("Volunteer")}
           >
             Volunteer
           </button>
           <button
-            className={`btn ${
-              userType === "NGO" ? "btn-success" : "btn-outline-light"
-            } flex-grow-1`}
+            className={`btn flex-grow-1 ${
+              userType === "NGO" ? "btn-success" : "btn-outline-success"
+            }`}
             onClick={() => setUserType("NGO")}
           >
             NGO
           </button>
         </div>
+
         <form onSubmit={handleLogin}>
-          <div className="mb-3">
+          <div className="form-floating mb-3">
             <input
               type="text"
-              className="form-control bg-transparent text-white border-white"
+              className="form-control"
+              id="nameInput"
               placeholder="Enter Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              style={{ border: "1px solid white" }}
             />
+            <label htmlFor="nameInput">Name</label>
           </div>
-          <div className="mb-3">
+
+          <div className="form-floating mb-4">
             <input
               type="password"
-              className="form-control bg-transparent text-white border-white"
+              className="form-control"
+              id="passwordInput"
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ border: "1px solid white" }}
             />
+            <label htmlFor="passwordInput">Password</label>
           </div>
-          <button type="submit" className="btn btn-light w-100 fw-bold">
+
+          <button type="submit" className="btn btn-primary w-100 fw-bold">
             Login
           </button>
         </form>

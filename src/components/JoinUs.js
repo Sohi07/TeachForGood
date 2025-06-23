@@ -1,7 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
-import { Link } from "react-router-dom"; // ✅ Important
+import { Link } from "react-router-dom"; 
 
 const JoinUs = () => {
   useScrollToTop();
@@ -10,7 +10,7 @@ const JoinUs = () => {
     <div
       className="d-flex flex-column align-items-center justify-content-center text-center vh-100 position-relative"
       style={{
-        backgroundImage: "url('volunteers.jpg')",
+        backgroundImage: `url(${process.env.PUBLIC_URL}/volunteers.jpg)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -20,9 +20,14 @@ const JoinUs = () => {
 
       {/* Content */}
       <div
-        className="position-relative text-white p-4 rounded"
-        style={{ maxWidth: "600px", backdropFilter: "blur(10px)" }}
-      >
+  className="position-relative text-white p-4 rounded-4"
+  style={{
+    maxWidth: "600px",
+    backdropFilter: "blur(10px)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.6)",
+  }}
+>
         <h1 className="mb-4 fw-bold">Join Us</h1>
         <p className="mb-4">
           Be a part of a movement that empowers education. Join as a volunteer or an NGO and make a difference today!
