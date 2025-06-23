@@ -34,7 +34,7 @@ const Login = () => {
     <div
       className="d-flex align-items-center justify-content-center vh-100 w-100"
       style={{
-        backgroundImage: "url('/LoginImg.jpg')",
+        backgroundImage: `url(${process.env.PUBLIC_URL}/LoginImg.jpg)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
