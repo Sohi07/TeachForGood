@@ -1,32 +1,42 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 import useScrollToTop from "./useScrollToTop";
 
 const Login = () => {
   useScrollToTop();
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!name || !password || !userType) {
-      alert("Please select user type and enter name and password!");
+    if (!email || !password || !userType) {
+      alert("Please select user type and enter email and password!");
       return;
     }
 
-    localStorage.setItem("user", name);
-    localStorage.setItem("userType", userType);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    if (userType === "Volunteer") {
-      navigate("/volunteer-dashboard");
-    } else if (userType === "NGO") {
-      navigate("/ngo-dashboard");
-    } else {
-      navigate("/");
+      localStorage.setItem("user", user.email);
+      localStorage.setItem("userType", userType);
+
+      if (userType === "Volunteer") {
+        navigate("/volunteer-dashboard");
+      } else if (userType === "NGO") {
+        navigate("/ngo-dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed: " + error.message);
     }
   };
 
@@ -64,17 +74,13 @@ const Login = () => {
 
         <div className="d-flex gap-3 mb-4">
           <button
-            className={`btn flex-grow-1 ${
-              userType === "Volunteer" ? "btn-primary" : "btn-outline-primary"
-            }`}
+            className={`btn flex-grow-1 ${userType === "Volunteer" ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => setUserType("Volunteer")}
           >
             Volunteer
           </button>
           <button
-            className={`btn flex-grow-1 ${
-              userType === "NGO" ? "btn-success" : "btn-outline-success"
-            }`}
+            className={`btn flex-grow-1 ${userType === "NGO" ? "btn-success" : "btn-outline-success"}`}
             onClick={() => setUserType("NGO")}
           >
             NGO
@@ -84,15 +90,15 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <div className="form-floating mb-3">
             <input
-              type="text"
+              type="email"
               className="form-control"
-              id="nameInput"
-              placeholder="Enter Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="emailInput"
+              placeholder="Enter Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <label htmlFor="nameInput">Name</label>
+            <label htmlFor="emailInput">Email</label>
           </div>
 
           <div className="form-floating mb-4">
