@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useScrollToTop from "./useScrollToTop";
-import { db } from "../firebase"; // make sure firebase is set up
+import { auth, db } from "../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const NgoSignUp = () => {
@@ -10,6 +11,7 @@ const NgoSignUp = () => {
     ngoName: "",
     contactPerson: "",
     email: "",
+    password: "",
     phone: "",
     location: "",
     website: "",
@@ -17,36 +19,82 @@ const NgoSignUp = () => {
     volunteerReqs: "",
     schedule: "",
     description: "",
+    agree: false,
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.agree) {
+      alert("Please confirm the information is accurate.");
+      return;
+    }
+
     try {
+      // 1. Create account in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
+
+      // 2. Store details in Firestore
       await addDoc(collection(db, "ngos"), {
-        ...formData,
+        uid: user.uid,
+        ngoName: formData.ngoName,
+        contactPerson: formData.contactPerson,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        website: formData.website,
+        areaOfWork: formData.areaOfWork,
+        volunteerReqs: formData.volunteerReqs,
+        schedule: formData.schedule,
+        description: formData.description,
         createdAt: serverTimestamp(),
       });
+
       alert("NGO registered successfully!");
-      setFormData({ ngoName: "", contactPerson: "", email: "", phone: "", location: "", website: "", areaOfWork: "", volunteerReqs: "", schedule: "", description: "" });
+
+      // Reset form
+      setFormData({
+        ngoName: "",
+        contactPerson: "",
+        email: "",
+        password: "",
+        phone: "",
+        location: "",
+        website: "",
+        areaOfWork: "",
+        volunteerReqs: "",
+        schedule: "",
+        description: "",
+        agree: false,
+      });
     } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("Error submitting form.");
+      console.error("Error registering NGO:", error);
+      alert("Error: " + error.message);
     }
   };
 
   return (
-    <div className="container text-center mt-5" style={{ paddingTop: '20px' }}>
+    <div className="container text-center mt-5" style={{ paddingTop: "20px" }}>
       <h2>NGO Registration</h2>
       <p>Fill out the form below to register your NGO.</p>
       <form onSubmit={handleSubmit}>
         <input name="ngoName" value={formData.ngoName} onChange={handleChange} type="text" className="form-control mb-3" placeholder="NGO Name" required />
         <input name="contactPerson" value={formData.contactPerson} onChange={handleChange} type="text" className="form-control mb-3" placeholder="Contact Person Name" required />
         <input name="email" value={formData.email} onChange={handleChange} type="email" className="form-control mb-3" placeholder="Email Address" required />
+        <input name="password" value={formData.password} onChange={handleChange} type="password" className="form-control mb-3" placeholder="Create Password" required />
         <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="form-control mb-3" placeholder="Phone Number" required />
         <input name="location" value={formData.location} onChange={handleChange} type="text" className="form-control mb-3" placeholder="NGO Location" required />
         <input name="website" value={formData.website} onChange={handleChange} type="url" className="form-control mb-3" placeholder="NGO Website (if any)" />
@@ -63,13 +111,15 @@ const NgoSignUp = () => {
         <textarea name="description" value={formData.description} onChange={handleChange} className="form-control mb-3" placeholder="Brief Description of NGO" rows="3" required />
 
         <div className="form-check text-start mb-3">
-          <input type="checkbox" className="form-check-input" required />
+          <input type="checkbox" className="form-check-input" name="agree" checked={formData.agree} onChange={handleChange} required />
           <label className="form-check-label">
             The information provided by me is true to the best of my knowledge.
           </label>
         </div>
 
-        <button className="btn btn-success m-3" type="submit">Register NGO</button>
+        <button className="btn btn-success m-3" type="submit">
+          Register NGO
+        </button>
       </form>
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 
 const Login = () => {
@@ -10,33 +10,37 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (!email || !password || !userType) {
-      alert("Please select user type and enter email and password!");
+      setError("Please select user type and enter email and password.");
       return;
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      localStorage.setItem("user", user.email);
+      await signInWithEmailAndPassword(auth, email, password);
       localStorage.setItem("userType", userType);
 
-      if (userType === "Volunteer") {
-        navigate("/volunteer-dashboard");
-      } else if (userType === "NGO") {
-        navigate("/ngo-dashboard");
-      } else {
-        navigate("/");
-      }
+      if (userType === "Volunteer") navigate("/volunteer-dashboard");
+      else if (userType === "NGO") navigate("/ngo-dashboard");
+      else navigate("/");
     } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed: " + error.message);
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-email" ||
+        error.code === "auth/invalid-credential"
+      ) {
+        setError("Invalid email or password.");
+      } else {
+        setError("Something went wrong. Please try again later.");
+      }
     }
   };
 
@@ -54,9 +58,7 @@ const Login = () => {
     >
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
-        style={{
-          backgroundColor: "rgba(14, 38, 42, 0.27)",
-        }}
+        style={{ backgroundColor: "rgba(14, 38, 42, 0.27)" }}
       ></div>
 
       <div
@@ -74,18 +76,29 @@ const Login = () => {
 
         <div className="d-flex gap-3 mb-4">
           <button
-            className={`btn flex-grow-1 ${userType === "Volunteer" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn flex-grow-1 ${
+              userType === "Volunteer" ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => setUserType("Volunteer")}
           >
             Volunteer
           </button>
           <button
-            className={`btn flex-grow-1 ${userType === "NGO" ? "btn-success" : "btn-outline-success"}`}
+            className={`btn flex-grow-1 ${
+              userType === "NGO" ? "btn-success" : "btn-outline-success"
+            }`}
             onClick={() => setUserType("NGO")}
           >
             NGO
           </button>
         </div>
+
+        {/* Show error if exists */}
+        {error && (
+          <div className="alert alert-danger text-center py-0" role="alert">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin}>
           <div className="form-floating mb-3">

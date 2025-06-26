@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase"; // adjust path if needed
+import { auth, db } from "../firebase"; // Make sure the path is correct
 import useScrollToTop from "./useScrollToTop";
 
 const VolunteerSignUp = () => {
@@ -31,17 +32,40 @@ const VolunteerSignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.agree) {
       alert("Please agree to the terms.");
       return;
     }
 
     try {
+      // 1. Register user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
+
+      // 2. Store user details in Firestore
       await addDoc(collection(db, "volunteers"), {
-        ...formData,
+        uid: user.uid,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        skills: formData.skills,
+        availability: formData.availability,
+        ageGroup: formData.ageGroup,
+        languages: formData.languages,
+        bio: formData.bio,
+        reason: formData.reason,
         timestamp: serverTimestamp(),
       });
+
       alert("Volunteer registered successfully!");
+
+      // Reset form
       setFormData({
         fullName: "",
         email: "",
@@ -58,7 +82,7 @@ const VolunteerSignUp = () => {
       });
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Error submitting form. Try again later.");
+      alert("Signup failed: " + error.message);
     }
   };
 
