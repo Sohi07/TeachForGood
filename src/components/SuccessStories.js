@@ -48,11 +48,11 @@ const SuccessStories = () => {
 
   return (
     <div className="container mt-4" style={{ paddingTop: '60px' }}>
-      <h1 className="text-center mb-4 text-primary">🌟 Success Stories 🌟</h1>
+      <h2 className="text-center mb-4 text-primary fw-bolds">🌟 Success Stories 🌟</h2>
       <Slider {...settings}>
         {stories.map((story) => (
           <div key={story.id} className="p-3">
-            <div className="card shadow p-3 rounded bg-light border-0 h-100">
+            <div className="card shadow p-3 rounded bg-light border-0 h-10">
               <h5 className="text-dark fw-bold">{story.title}</h5>
               <p className="text-secondary">{story.description}</p>
             </div>
