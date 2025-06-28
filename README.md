@@ -9,11 +9,12 @@ https://sohi07.github.io/TeachForGood/
 
 <a href="https://github.com/Sohi07"><img src="https://avatars.githubusercontent.com/Sohi07" width="50px" alt="Sohini Das"/></a>
 <a href="https://github.com/TAnisha016"><img src="https://avatars.githubusercontent.com/TAnisha016" width="50px" alt="Tanisha"/></a>
-
 <h2>Note</h2>
-<p>This app is currently frontend-only! The login and signup forms are present to give an idea of the functionality of the website.<br>
-Backend integration and full functionality will be added in future updates.
+<p>
+  This application is built as a frontend interface with partial backend support via Firebase services, including authentication and basic data handling.<br>
+  Comprehensive backend integration is planned for future releases.
 </p>
+
 
 
 
