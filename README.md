@@ -2,7 +2,7 @@
 <p>We are a platform connecting volunteers and NGOs based on their availability, location, and preferred teaching subjects.<br>
 We aim to bridge the gap between willing educators and organizations working to uplift underprivileged students.</p>
 <h2>Deployed Link</h2>
-https://sohi07.github.io/TeachForGood/
+https://teach-for-good.vercel.app/
 <br>
 
 ## Contributors
