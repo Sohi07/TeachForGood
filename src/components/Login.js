@@ -1,32 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 
 const Login = () => {
   useScrollToTop();
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!name || !password || !userType) {
-      alert("Please select user type and enter name and password!");
+    if (!email || !password || !userType) {
+      setError("Please select user type and enter email and password.");
       return;
     }
 
-    localStorage.setItem("user", name);
-    localStorage.setItem("userType", userType);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      localStorage.setItem("userType", userType);
 
-    if (userType === "Volunteer") {
-      navigate("/volunteer-dashboard");
-    } else if (userType === "NGO") {
-      navigate("/ngo-dashboard");
-    } else {
-      navigate("/");
+      if (userType === "Volunteer") navigate("/volunteer-dashboard");
+      else if (userType === "NGO") navigate("/ngo-dashboard");
+      else navigate("/");
+    } catch (error) {
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-email" ||
+        error.code === "auth/invalid-credential"
+      ) {
+        setError("Invalid email or password.");
+      } else {
+        setError("Something went wrong. Please try again later.");
+      }
     }
   };
 
@@ -44,9 +58,7 @@ const Login = () => {
     >
       <div
         className="position-absolute top-0 start-0 w-100 h-100"
-        style={{
-          backgroundColor: "rgba(14, 38, 42, 0.27)",
-        }}
+        style={{ backgroundColor: "rgba(14, 38, 42, 0.27)" }}
       ></div>
 
       <div
@@ -81,18 +93,25 @@ const Login = () => {
           </button>
         </div>
 
+        {/* Show error if exists */}
+        {error && (
+          <div className="alert alert-danger text-center py-0" role="alert">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleLogin}>
           <div className="form-floating mb-3">
             <input
-              type="text"
+              type="email"
               className="form-control"
-              id="nameInput"
-              placeholder="Enter Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="emailInput"
+              placeholder="Enter Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <label htmlFor="nameInput">Name</label>
+            <label htmlFor="emailInput">Email</label>
           </div>
 
           <div className="form-floating mb-4">
