@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 
@@ -24,7 +28,21 @@ const Login = () => {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const uid = userCredential.user.uid;
+
+      const docRef = doc(db, userType === "Volunteer" ? "volunteers" : "ngos", uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        setError("No profile found. Please enter correct credentials.");
+        return;
+      }
+
       localStorage.setItem("userType", userType);
 
       if (userType === "Volunteer") navigate("/volunteer-dashboard");
@@ -41,6 +59,21 @@ const Login = () => {
       } else {
         setError("Something went wrong. Please try again later.");
       }
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError("Please enter your email to reset password.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Reset error:", error);
+      setError("Error sending reset email. Make sure the email is correct.");
     }
   };
 
@@ -93,7 +126,6 @@ const Login = () => {
           </button>
         </div>
 
-        {/* Show error if exists */}
         {error && (
           <div className="alert alert-danger text-center py-0" role="alert">
             {error}
@@ -125,6 +157,17 @@ const Login = () => {
               required
             />
             <label htmlFor="passwordInput">Password</label>
+          </div>
+
+          <div className="text-end mb-3">
+            <button
+              type="button"
+              className="btn btn-link p-0 text-decoration-none"
+              onClick={handleResetPassword}
+              style={{ fontSize: "0.9rem", color: "#007bff" }}
+            >
+              Forgot Password?
+            </button>
           </div>
 
           <button type="submit" className="btn btn-primary w-100 fw-bold">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useScrollToTop from "./useScrollToTop";
 import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 const NgoSignUp = () => {
   useScrollToTop();
@@ -48,7 +48,7 @@ const NgoSignUp = () => {
       const user = userCredential.user;
 
       // 2. Store details in Firestore
-      await addDoc(collection(db, "ngos"), {
+      await setDoc(doc(db, "ngos", user.uid), {
         uid: user.uid,
         ngoName: formData.ngoName,
         contactPerson: formData.contactPerson,
@@ -96,7 +96,25 @@ const NgoSignUp = () => {
         <input name="email" value={formData.email} onChange={handleChange} type="email" className="form-control mb-3" placeholder="Email Address" required />
         <input name="password" value={formData.password} onChange={handleChange} type="password" className="form-control mb-3" placeholder="Create Password" required />
         <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="form-control mb-3" placeholder="Phone Number" required />
-        <input name="location" value={formData.location} onChange={handleChange} type="text" className="form-control mb-3" placeholder="NGO Location" required />
+        <select
+  name="location"
+  value={formData.location}
+  onChange={handleChange}
+  className="form-control mb-3"
+  required
+>
+  <option value="">Select NGO Location</option>
+  <option value="Delhi">Delhi</option>
+  <option value="Mumbai">Mumbai</option>
+  <option value="Bangalore">Bangalore</option>
+  <option value="Hyderabad">Hyderabad</option>
+  <option value="Ranchi">Ranchi</option>
+  <option value="Kolkata">Kolkata</option>
+  <option value="Chennai">Chennai</option>
+  <option value="Pune">Pune</option>
+  <option value="Ahmedabad">Ahmedabad</option>
+  <option value="Jaipur">Jaipur</option>
+</select>
         <input name="website" value={formData.website} onChange={handleChange} type="url" className="form-control mb-3" placeholder="NGO Website (if any)" />
         <select name="areaOfWork" value={formData.areaOfWork} onChange={handleChange} className="form-control mb-3" required>
           <option value="">Areas of Work/Focus</option>

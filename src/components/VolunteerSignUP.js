@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase"; // Make sure the path is correct
 import useScrollToTop from "./useScrollToTop";
 
@@ -47,21 +47,19 @@ const VolunteerSignUp = () => {
       );
       const user = userCredential.user;
 
-      // 2. Store user details in Firestore
-      await addDoc(collection(db, "volunteers"), {
-        uid: user.uid,
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        location: formData.location,
-        skills: formData.skills,
-        availability: formData.availability,
-        ageGroup: formData.ageGroup,
-        languages: formData.languages,
-        bio: formData.bio,
-        reason: formData.reason,
-        timestamp: serverTimestamp(),
-      });
+    await setDoc(doc(db, "volunteers", user.uid), {
+  fullName: formData.fullName,
+  email: formData.email,
+  phone: formData.phone,
+  location: formData.location,
+  skills: formData.skills,
+  availability: formData.availability,
+  ageGroup: formData.ageGroup,
+  languages: formData.languages,
+  bio: formData.bio,
+  reason: formData.reason,
+  timestamp: serverTimestamp(),
+});
 
       alert("Volunteer registered successfully!");
 
@@ -94,7 +92,25 @@ const VolunteerSignUp = () => {
         <input type="text" className="form-control mb-3" placeholder="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} required />
         <input type="email" className="form-control mb-3" placeholder="Email Address" name="email" value={formData.email} onChange={handleChange} required />
         <input type="tel" className="form-control mb-3" placeholder="Phone Number" name="phone" value={formData.phone} onChange={handleChange} required />
-        <input type="text" className="form-control mb-3" placeholder="City/Location" name="location" value={formData.location} onChange={handleChange} required />
+       <select
+  className="form-control mb-3"
+  name="location"
+  value={formData.location}
+  onChange={handleChange}
+  required
+>
+  <option value="">Select Your City</option>
+  <option value="Delhi">Delhi</option>
+  <option value="Mumbai">Mumbai</option>
+  <option value="Bangalore">Bangalore</option>
+  <option value="Hyderabad">Hyderabad</option>
+  <option value="Ranchi">Ranchi</option>
+  <option value="Kolkata">Kolkata</option>
+  <option value="Chennai">Chennai</option>
+  <option value="Pune">Pune</option>
+  <option value="Ahmedabad">Ahmedabad</option>
+  <option value="Jaipur">Jaipur</option>
+</select>
         
         <select className="form-control mb-3" name="skills" value={formData.skills} onChange={handleChange} required>
           <option value="">Area of Expertise/Skills</option>
