@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import {doc, setDoc, serverTimestamp } from "firebase/firestore";
+
 import { auth, db } from "../firebase"; // Make sure the path is correct
+import { doc, setDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import useScrollToTop from "./useScrollToTop";
 
 const VolunteerSignUp = () => {
@@ -13,21 +14,81 @@ const VolunteerSignUp = () => {
     phone: "",
     location: "",
     skills: "",
-    availability: "",
+    availability: [],
     ageGroup: "",
-    languages: "",
+    languages: [],
     bio: "",
     reason: "",
     password: "",
     agree: false,
   });
 
+  const availabilityOptions = [
+    "Monday (Morning)", "Monday (Evening)",
+    "Tuesday (Morning)", "Tuesday (Evening)",
+    "Wednesday (Morning)", "Wednesday (Evening)",
+    "Thursday (Morning)", "Thursday (Evening)",
+    "Friday (Morning)", "Friday (Evening)",
+    "Saturday (Morning)", "Saturday (Evening)",
+    "Sunday (Morning)", "Sunday (Evening)",
+  ];
+
+  const languagesOptions = [
+    "Hindi",
+    "English",
+    "Bengali",
+    "Marathi",
+    "Tamil",
+    "Telugu",
+    "Kannada",
+    "Malayalam",
+    "Punjabi",
+    "Gujarati",
+  ];
+
+  const [showAvailabilityDropdown, setShowAvailabilityDropdown] = useState(false);
+  const [showLanguagesDropdown, setShowLanguagesDropdown] = useState(false);
+
+  const availabilityDropdownRef = useRef();
+  const languagesDropdownRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        availabilityDropdownRef.current && !availabilityDropdownRef.current.contains(e.target)
+      ) {
+        setShowAvailabilityDropdown(false);
+      }
+
+      if (
+        languagesDropdownRef.current && !languagesDropdownRef.current.contains(e.target)
+      ) {
+        setShowLanguagesDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+
+    if (name === "availability") {
+      const updatedAvailability = formData.availability.includes(value)
+        ? formData.availability.filter((slot) => slot !== value)
+        : [...formData.availability, value];
+      setFormData((prev) => ({ ...prev, availability: updatedAvailability }));
+    } else if (name === "languages") {
+      const updatedLanguages = formData.languages.includes(value)
+        ? formData.languages.filter((lang) => lang !== value)
+        : [...formData.languages, value];
+      setFormData((prev) => ({ ...prev, languages: updatedLanguages }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,8 +99,11 @@ const VolunteerSignUp = () => {
       return;
     }
 
+          const fullLanguages = formData.languages.includes("Other (Please specify)")
+        ? [...formData.languages.filter((l) => l !== "Other (Please specify)"), formData.otherLanguage]
+        : formData.languages;
+
     try {
-      // 1. Register user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
@@ -60,19 +124,32 @@ const VolunteerSignUp = () => {
   reason: formData.reason,
   timestamp: serverTimestamp(),
 });
+      await addDoc(collection(db, "volunteers"), {
+        uid: user.uid,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        skills: formData.skills,
+        availability: formData.availability.join(", "),
+        ageGroup: formData.ageGroup,
+        languages: formData.languages.join(", "),
+        bio: formData.bio,
+        reason: formData.reason,
+        timestamp: serverTimestamp(),
+      });
 
       alert("Volunteer registered successfully!");
 
-      // Reset form
       setFormData({
         fullName: "",
         email: "",
         phone: "",
         location: "",
         skills: "",
-        availability: "",
+        availability: [],
         ageGroup: "",
-        languages: "",
+        languages: [],
         bio: "",
         reason: "",
         password: "",
@@ -112,6 +189,8 @@ const VolunteerSignUp = () => {
   <option value="Jaipur">Jaipur</option>
 </select>
         
+        <input type="text" className="form-control mb-3" placeholder="City/Location" name="location" value={formData.location} onChange={handleChange} required />
+
         <select className="form-control mb-3" name="skills" value={formData.skills} onChange={handleChange} required>
           <option value="">Area of Expertise/Skills</option>
           <option value="Teaching">Teaching</option>
@@ -121,7 +200,48 @@ const VolunteerSignUp = () => {
           <option value="Others">Others</option>
         </select>
 
-        <input type="text" className="form-control mb-3" placeholder="Availability (Days and Time)" name="availability" value={formData.availability} onChange={handleChange} required />
+        {/* Availability Dropdown */}
+        <div className="mb-3 text-start" ref={availabilityDropdownRef}>
+          <div
+            className="form-control"
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowAvailabilityDropdown(!showAvailabilityDropdown)}
+          >
+            {formData.availability.length > 0
+              ? formData.availability.join(", ")
+              : "Select availability"}
+          </div>
+
+          {showAvailabilityDropdown && (
+            <div
+              className="border rounded bg-white mt-1 p-2 shadow"
+              style={{
+                maxHeight: "200px",
+                overflowY: "auto",
+                zIndex: 1000,
+                position: "absolute",
+                width: "100%",
+              }}
+            >
+              {availabilityOptions.map((slot, index) => (
+                <div className="form-check" key={index}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    name="availability"
+                    value={slot}
+                    id={`slot-${index}`}
+                    checked={formData.availability.includes(slot)}
+                    onChange={handleChange}
+                  />
+                  <label className="form-check-label" htmlFor={`slot-${index}`}>
+                    {slot}
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <select className="form-control mb-3" name="ageGroup" value={formData.ageGroup} onChange={handleChange} required>
           <option value="">Preferred Age Group</option>
@@ -129,7 +249,49 @@ const VolunteerSignUp = () => {
           <option value="Teens">Teens</option>
         </select>
 
-        <input type="text" className="form-control mb-3" placeholder="Languages Spoken" name="languages" value={formData.languages} onChange={handleChange} required />
+        {/* Languages Spoken Dropdown */}
+        <div className="mb-3 text-start" ref={languagesDropdownRef}>
+          <div
+            className="form-control"
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowLanguagesDropdown(!showLanguagesDropdown)}
+          >
+            {formData.languages.length > 0
+              ? formData.languages.join(", ")
+              : "Select languages spoken"}
+          </div>
+
+          {showLanguagesDropdown && (
+            <div
+              className="border rounded bg-white mt-1 p-2 shadow"
+              style={{
+                maxHeight: "200px",
+                overflowY: "auto",
+                zIndex: 1000,
+                position: "absolute",
+                width: "100%",
+              }}
+            >
+              {languagesOptions.map((lang, index) => (
+                <div className="form-check" key={index}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    name="languages"
+                    value={lang}
+                    id={`lang-${index}`}
+                    checked={formData.languages.includes(lang)}
+                    onChange={handleChange}
+                  />
+                  <label className="form-check-label" htmlFor={`lang-${index}`}>
+                    {lang}
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <textarea className="form-control mb-3" placeholder="Brief Bio/About You (Optional)" name="bio" rows="3" value={formData.bio} onChange={handleChange}></textarea>
         <textarea className="form-control mb-3" placeholder="Why do you want to volunteer?" name="reason" rows="3" value={formData.reason} onChange={handleChange} required></textarea>
         <input type="password" className="form-control mb-3" placeholder="Create Password" name="password" value={formData.password} onChange={handleChange} required />
