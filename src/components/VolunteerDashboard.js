@@ -22,7 +22,7 @@ const VolunteerDashboard = () => {
     const dummySchedule = [
       {
         ngoName: "Vidya Kendra",
-        date: "2024-03-10",
+        date: "2025-08-10",
         time: "2:00 PM - 4:00 PM",
         activity: "Teaching Maths",
       },
