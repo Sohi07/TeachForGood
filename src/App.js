@@ -13,12 +13,13 @@ import VolunteerDashboard from "./components/VolunteerDashboard";
 import NGODashboard from "./components/NGODashboard";
 import VolunteerMatching from "./components/VolunteerMatching";
 import Layout from "./components/Layout";
-
+import { AuthProvider } from "./context/AuthContext";
 // Helper wrapper to access location inside Router
 function AnimatedRoutes() {
   const location = useLocation();
 
   return (
+    
     <Layout>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -60,6 +61,7 @@ function AnimatedRoutes() {
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div className="d-flex flex-column min-vh-100">
         <main className="flex-grow-1">
@@ -67,6 +69,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 
