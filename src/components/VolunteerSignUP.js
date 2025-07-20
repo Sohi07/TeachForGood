@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import { auth, db } from "../firebase"; // Make sure the path is correct
-import { doc, setDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import useScrollToTop from "./useScrollToTop";
 
 const VolunteerSignUp = () => {
@@ -92,74 +92,56 @@ const VolunteerSignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.agree) {
-      alert("Please agree to the terms.");
-      return;
-    }
+  if (!formData.agree) {
+    alert("Please agree to the terms.");
+    return;
+  }
 
-          const fullLanguages = formData.languages.includes("Other (Please specify)")
-        ? [...formData.languages.filter((l) => l !== "Other (Please specify)"), formData.otherLanguage]
-        : formData.languages;
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    );
+    const user = userCredential.user;
 
     await setDoc(doc(db, "volunteers", user.uid), {
-  fullName: formData.fullName,
-  email: formData.email,
-  phone: formData.phone,
-  location: formData.location,
-  skills: formData.skills,
-  availability: formData.availability,
-  ageGroup: formData.ageGroup,
-  languages: formData.languages,
-  bio: formData.bio,
-  reason: formData.reason,
-  timestamp: serverTimestamp(),
-});
-      await addDoc(collection(db, "volunteers"), {
-        uid: user.uid,
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        location: formData.location,
-        skills: formData.skills,
-        availability: formData.availability.join(", "),
-        ageGroup: formData.ageGroup,
-        languages: formData.languages.join(", "),
-        bio: formData.bio,
-        reason: formData.reason,
-        timestamp: serverTimestamp(),
-      });
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      location: formData.location,
+      skills: formData.skills,
+      availability: formData.availability,
+      ageGroup: formData.ageGroup,
+      languages: formData.languages, // use directly
+      bio: formData.bio,
+      reason: formData.reason,
+      timestamp: serverTimestamp(),
+    });
 
-      alert("Volunteer registered successfully!");
+    alert("Volunteer registered successfully!");
 
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        location: "",
-        skills: "",
-        availability: [],
-        ageGroup: "",
-        languages: [],
-        bio: "",
-        reason: "",
-        password: "",
-        agree: false,
-      });
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Signup failed: " + error.message);
-    }
-  };
+    setFormData({
+      fullName: "",
+      email: "",
+      phone: "",
+      location: "",
+      skills: "",
+      availability: [],
+      ageGroup: "",
+      languages: [],
+      bio: "",
+      reason: "",
+      password: "",
+      agree: false,
+    });
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Signup failed: " + error.message);
+  }
+};
 
   return (
     <div className="container text-center mt-5" style={{ paddingTop: "20px" }}>
@@ -189,8 +171,6 @@ const VolunteerSignUp = () => {
   <option value="Jaipur">Jaipur</option>
 </select>
         
-        <input type="text" className="form-control mb-3" placeholder="City/Location" name="location" value={formData.location} onChange={handleChange} required />
-
         <select className="form-control mb-3" name="skills" value={formData.skills} onChange={handleChange} required>
           <option value="">Area of Expertise/Skills</option>
           <option value="Teaching">Teaching</option>
