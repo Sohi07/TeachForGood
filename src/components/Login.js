@@ -28,12 +28,9 @@ const Login = () => {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const uid = userCredential.user.uid;
+      const userCredential = await signInWithEmailAndPassword(auth,email,password);
+      const user = userCredential.user;
+      const uid = user.uid;
 
       const docRef = doc(db, userType === "Volunteer" ? "volunteers" : "ngos", uid);
       const docSnap = await getDoc(docRef);
@@ -43,11 +40,20 @@ const Login = () => {
         return;
       }
 
-      localStorage.setItem("userType", userType);
+    localStorage.setItem("userId", uid);
+    localStorage.setItem("userType", userType);
+    localStorage.setItem("userEmail", email);
 
-      if (userType === "Volunteer") navigate("/volunteer-dashboard");
-      else if (userType === "NGO") navigate("/ngo-dashboard");
-      else navigate("/");
+     const userData = docSnap.data();
+    if (userType === "Volunteer") {
+      localStorage.setItem("user", userData.fullName || "");
+      localStorage.setItem("userSkills", userData.skills || "");
+      localStorage.setItem("userLanguages", JSON.stringify(userData.languages || []));
+      navigate("/volunteer-dashboard");
+    } else if (userType === "NGO") {
+      localStorage.setItem("user", userData.organizationName || "");
+      navigate("/ngo-dashboard");
+    }
     } catch (error) {
       if (
         error.code === "auth/user-not-found" ||

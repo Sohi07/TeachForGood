@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
-import { auth, db } from "../firebase"; // Make sure the path is correct
+import { auth, db } from "../firebase"; 
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import useScrollToTop from "./useScrollToTop";
+import { useNavigate } from "react-router-dom";
 
 const VolunteerSignUp = () => {
   useScrollToTop();
-
+const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -91,7 +92,8 @@ const VolunteerSignUp = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
+  
   e.preventDefault();
 
   if (!formData.agree) {
@@ -100,6 +102,7 @@ const VolunteerSignUp = () => {
   }
 
   try {
+    // 1. Create auth user
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       formData.email,
@@ -107,7 +110,8 @@ const VolunteerSignUp = () => {
     );
     const user = userCredential.user;
 
-    await setDoc(doc(db, "volunteers", user.uid), {
+    // 2. Prepare volunteer data for Firestore
+    const volunteerData = {
       fullName: formData.fullName,
       email: formData.email,
       phone: formData.phone,
@@ -115,14 +119,25 @@ const VolunteerSignUp = () => {
       skills: formData.skills,
       availability: formData.availability,
       ageGroup: formData.ageGroup,
-      languages: formData.languages, // use directly
+      languages: formData.languages,
       bio: formData.bio,
       reason: formData.reason,
       timestamp: serverTimestamp(),
-    });
+    };
 
-    alert("Volunteer registered successfully!");
+    // 3. Save to Firestore
+    await setDoc(doc(db, "volunteers", user.uid), volunteerData);
 
+    // 4. Store essential data in localStorage
+    localStorage.setItem("user", formData.fullName);
+    localStorage.setItem("userType", "volunteer");
+    localStorage.setItem("userId", user.uid); // Store UID for future reference
+    localStorage.setItem("userEmail", formData.email);
+
+    // 5. Navigate to dashboard
+    navigate("/volunteer-dashboard");
+
+ 
     setFormData({
       fullName: "",
       email: "",
@@ -137,6 +152,7 @@ const VolunteerSignUp = () => {
       password: "",
       agree: false,
     });
+
   } catch (error) {
     console.error("Error submitting form:", error);
     alert("Signup failed: " + error.message);

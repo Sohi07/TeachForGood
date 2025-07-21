@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 
@@ -9,150 +11,190 @@ const VolunteerDashboard = () => {
   const userName = localStorage.getItem("user");
   const userType = localStorage.getItem("userType");
   const [profilePic, setProfilePic] = useState(localStorage.getItem("profilePic") || "profile-icon.jpg");
+
+  const [volunteerData, setVolunteerData] = useState({
+    fullName: "",
+    email: "",
+    skills: "",
+    languages: [],
+  });
+
   const [schedule, setSchedule] = useState([]);
 
-  const volunteerData = {
-    skills: ["Healthcare", "IT", "Teaching"],
-    availability: "Wednesday(Evening),     Saturday(Morning)",
-    languages: "English, Hindi",
-  };
-
   useEffect(() => {
-    // Replace with your actual data fetching logic
-    const dummySchedule = [
+    const fetchVolunteer = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "volunteers", userId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setVolunteerData({
+            fullName: data.fullName || localStorage.getItem("user"),
+            email: data.email || localStorage.getItem("userEmail"),
+            skills: data.skills || "",
+            languages: Array.isArray(data.languages) 
+              ? data.languages 
+              : (typeof data.languages === 'string' ? [data.languages] : []),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching volunteer:", err);
+      }
+    };
+
+    fetchVolunteer();
+
+    // Dummy schedule for now
+    setSchedule([
       {
         ngoName: "Vidya Kendra",
         date: "2025-08-10",
         time: "2:00 PM - 4:00 PM",
         activity: "Teaching Maths",
       },
-      // Add more dummy schedule data or fetch from your API
-    ];
-    setSchedule(dummySchedule);
-  }, []);
+    ]);
+  }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("userType");
-    localStorage.removeItem("profilePic");
+    localStorage.clear();
     navigate("/");
   };
 
-  const handleProfilePicChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result);
-        localStorage.setItem("profilePic", reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Simple validation
+    if (!file.type.match("image.*")) {
+      alert("Please select an image file (JPEG, PNG, etc.)");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result;
+      setProfilePic(result);
+      localStorage.setItem("profilePic", result);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card shadow p-5">
-            <div className="text-center">
-              <div className="d-flex flex-column align-items-center">
-                <div
-                  className="position-relative d-inline-block mb-3"
-                  style={{ width: "150px", height: "150px", borderRadius: "50%" }}
-                >
+          <div className="card shadow p-5 text-center">
+            <div className="d-flex flex-column align-items-center">
+              <div className="position-relative mb-3">
+                <div style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  position: "relative",
+                  border: "3px solid #f0f0f0"
+                }}>
                   <img
-                    src={profilePic || "placeholder-volunteer.png"}
+                    src={profilePic}
                     alt="Profile"
-                    className="rounded-circle"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{ 
+                      width: "100%", 
+                      height: "100%", 
+                      objectFit: "cover" 
+                    }}
                   />
+                  <label htmlFor="profile-upload" style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    background: "rgba(0,0,0,0.5)",
+                    color: "white",
+                    padding: "5px",
+                    cursor: "pointer",
+                    fontSize: "0.8rem"
+                  }}>
+                    Change Photo
+                  </label>
                   <input
+                    id="profile-upload"
                     type="file"
                     accept="image/*"
                     onChange={handleProfilePicChange}
-                    className="position-absolute"
                     style={{
-                      opacity: 0,
-                      width: "100%",
-                      height: "100%",
-                      cursor: "pointer",
+                      display: "none"
                     }}
                   />
-                  <div
-                    className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", opacity: 0, borderRadius: "50%" }}
-                    onMouseEnter={(e) => (e.target.style.opacity = 1)}
-                    onMouseLeave={(e) => (e.target.style.opacity = 0)}
-                  >
-                    <span className="text-white">Upload</span>
-                  </div>
-                </div>
-                <button className="btn btn-primary mt-3" onClick={() => navigate("/volunteer-matching")}>
-                  Start Volunteering
-                </button>
-              </div>
-
-              <h2 className="mt-4">{userName}</h2>
-              <p className="text-muted mb-4">{userType}</p>
-
-              <div className="row">
-                <div className="col-md-4 mb-4">
-                  <div className="card h-100">
-                    <div className="card-body">
-                      <h5 className="card-title">Skills</h5>
-                      <p className="card-text">{volunteerData.skills.join(", ")}</p>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div className="col-md-4 mb-4">
-                  <div className="card h-100">
-                    <div className="card-body">
-                      <h5 className="card-title">Availability</h5>
-                      <p className="card-text">{volunteerData.availability}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-md-4 mb-4">
-                  <div className="card h-100">
-                    <div className="card-body">
-                      <h5 className="card-title">Languages</h5>
-                      <p className="card-text">{volunteerData.languages}</p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {schedule.length > 0 && (
-                <div className="card mt-4">
-                  <div className="card-body">
-                    <h4 className="card-title">My Volunteering Schedule</h4>
-                    <ul>
-                      {schedule.map((item, index) => (
-                        <li key={index}>
-                          <strong>{item.ngoName}</strong> - {item.date} - {item.time} ({item.activity})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-
-              {schedule.length === 0 && (
-                <div className="card mt-4">
-                  <div className="card-body">
-                    <p className="card-text">You currently have no volunteering activities scheduled.</p>
-                  </div>
-                </div>
-              )}
-
-              <button className="btn btn-danger mt-4 px-4 py-2" onClick={handleLogout}>
-                Logout
+              <button className="btn btn-primary mt-3" onClick={() => navigate("/volunteer-matching")}>
+                Start Volunteering
               </button>
             </div>
+
+            {/* Rest of your existing JSX remains the same */}
+            <h2 className="mt-4">{volunteerData.fullName || userName}</h2>
+            <p className="text-muted">{userType}</p>
+
+            <div className="row mt-4">
+              <div className="col-md-4 mb-3">
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Email</h5>
+                    <p className="card-text">{volunteerData.email}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Skills</h5>
+                    <p className="card-text">{volunteerData.skills}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">Languages</h5>
+                    <p className="card-text">{volunteerData.languages.join(", ")}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {schedule.length > 0 ? (
+              <div className="card mt-4">
+                <div className="card-body">
+                  <h4 className="card-title">My Volunteering Schedule</h4>
+                  <ul className="list-unstyled">
+                    {schedule.map((item, idx) => (
+                      <li key={idx}>
+                        <strong>{item.ngoName}</strong> - {item.date} - {item.time} ({item.activity})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="card mt-4">
+                <div className="card-body">
+                  <p className="card-text">You currently have no volunteering activities scheduled.</p>
+                </div>
+              </div>
+            )}
+
+            <button className="btn btn-danger mt-4 px-4 py-2" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         </div>
       </div>
