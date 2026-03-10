@@ -61,10 +61,7 @@ const upcomingSchedule = schedule.filter(item => {
     // Dummy schedule for now
     setSchedule([
       {
-        ngoName: "Vidya Kendra",
-        date: "2025-08-10",
-        time: "2:00 PM - 4:00 PM",
-        activity: "Teaching Maths",
+       
       },
     ]);
   }, [navigate]);
@@ -194,7 +191,7 @@ const upcomingSchedule = schedule.filter(item => {
 ) : (
   <div className="card mt-4">
     <div className="card-body">
-      <p className="card-text">You currently have no volunteering activities scheduled.</p>
+      <p className="card-text">You currently have no volunteering activities scheduled</p>
     </div>
   </div>
 )}
