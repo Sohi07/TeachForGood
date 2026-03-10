@@ -5,6 +5,8 @@ import { db } from "../firebase";
 import "bootstrap/dist/css/bootstrap.min.css";
 import useScrollToTop from "./useScrollToTop";
 
+
+
 const VolunteerDashboard = () => {
   useScrollToTop();
   const navigate = useNavigate();
@@ -18,8 +20,13 @@ const VolunteerDashboard = () => {
     skills: "",
     languages: [],
   });
-
   const [schedule, setSchedule] = useState([]);
+  const today = new Date().toISOString().split("T")[0];
+const upcomingSchedule = schedule.filter(item => {
+  const activityDate = new Date(item.date);
+  return activityDate >= today;
+});
+  
 
   useEffect(() => {
     const fetchVolunteer = async () => {
@@ -171,26 +178,26 @@ const VolunteerDashboard = () => {
               </div>
             </div>
 
-            {schedule.length > 0 ? (
-              <div className="card mt-4">
-                <div className="card-body">
-                  <h4 className="card-title">My Volunteering Schedule</h4>
-                  <ul className="list-unstyled">
-                    {schedule.map((item, idx) => (
-                      <li key={idx}>
-                        <strong>{item.ngoName}</strong> - {item.date} - {item.time} ({item.activity})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ) : (
-              <div className="card mt-4">
-                <div className="card-body">
-                  <p className="card-text">You currently have no volunteering activities scheduled.</p>
-                </div>
-              </div>
-            )}
+{upcomingSchedule.length > 0 ? (
+  <div className="card mt-4">
+    <div className="card-body">
+      <h4 className="card-title">My Volunteering Schedule</h4>
+      <ul className="list-unstyled">
+        {upcomingSchedule.map((item, idx) => (
+          <li key={idx}>
+            <strong>{item.ngoName}</strong> - {item.date} - {item.time} ({item.activity})
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+) : (
+  <div className="card mt-4">
+    <div className="card-body">
+      <p className="card-text">You currently have no volunteering activities scheduled.</p>
+    </div>
+  </div>
+)}
 
             <button className="btn btn-danger mt-4 px-4 py-2" onClick={handleLogout}>
               Logout
